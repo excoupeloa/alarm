@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tooki Quest Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;      
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --active-green: #10b981;
+            --inactive-red: #f43f5e;
+            --accent-blue: #38bdf8;
+            --text-soft: #94a3b8;     
+            --text-bright: #f8fafc;  
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-bright);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            gap: 20px;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 420px;
+        }
+
+        .status-bar {
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15rem;
+            margin-bottom: 1rem;
+            padding: 6px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.2);
+        }
+        .status-inactive { color: var(--inactive-red); }
+        .status-active { color: var(--active-green); }
+
+        #timer {
+            font-size: 6rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            margin: 0.5rem 0;
+        }
+
+        .tracker-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 1.5rem;
+            border-radius: 24px;
+            width: 420px;
+            box-sizing: border-box;
+        }
+
+        .tracker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .quest-title { font-size: 0.9rem; font-weight: 600; color: var(--accent-blue); }
+        .quest-count { font-size: 0.9rem; font-weight: 800; }
+
+        .progress-container {
+            background: rgba(255,255,255,0.05);
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #progressBar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--active-green));
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button {
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-enable { background-color: var(--active-green); color: #064e3b; width: 100%; }
+        .btn-disable { background-color: var(--inactive-red); color: #450a0a; width: 100%; }
+        
+        #completeBtn {
+            background: var(--accent-blue);
+            color: #0c4a6e;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        #resetBtn {
+            background: transparent;
+            color: var(--text-soft);
+            font-size: 0.7rem;
+            text-decoration: underline;
+            padding: 5px;
+        }
+
+        #testBtn {
+            background: transparent;
+            color: var(--text-soft);
+            font-size: 0.75rem;
+            margin-top: 10px;
+        }
+
+        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <div id="statusIndicator" class="status-bar status-inactive">Alarm Inactive</div>
+        <div id="timer">--:--</div>
+        <div style="color: var(--text-soft); font-size: 0.8rem; margin-bottom: 1.5rem;">Commander: <strong>Batuhan</strong></div>
+        
+        <div class="button-group">
+            <button id="toggleBtn" class="btn-enable">Enable Alarm</button>
+            <button id="testBtn">🔊 Test AI Voice Tone</button>
+        </div>
+    </div>
+
+    <div class="tracker-card">
+        <div class="tracker-header">
+            <span class="quest-title">Tooki Progress</span>
+            <span class="quest-count" id="countLabel">0 / 14</span>
+        </div>
+        
+        <div class="progress-container">
+            <div id="progressBar"></div>
+        </div>
+
+        <button id="completeBtn">Complete Tooki Step</button>
+        <center><button id="resetBtn">Reset Tracker</button></center>
+    </div>
+
+    <script>
+        const timerDisplay = document.getElementById('timer');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const completeBtn = document.getElementById('completeBtn');
+        const countLabel = document.getElementById('countLabel');
+        const progressBar = document.getElementById('progressBar');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let audioEnabled = false;
+        const totalQuests = 14;
+        let completedCount = parseInt(localStorage.getItem('tookiCount')) || 0;
+
+        function updateUI() {
+            countLabel.innerText = `${completedCount} / ${totalQuests}`;
+            const percent = (completedCount / totalQuests) * 100;
+            progressBar.style.width = `${percent}%`;
+            localStorage.setItem('tookiCount', completedCount);
+        }
+        updateUI();
+
+        completeBtn.addEventListener('click', () => {
+            if (completedCount < totalQuests) {
+                completedCount++;
+                updateUI();
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if(confirm("Reset Tooki progress to 0?")) {
+                completedCount = 0;
+                updateUI();
+            }
+        });
+
+        function triggerVoiceAlarm() {
+            const text = "Batuhan, hourly reminder for you! Switch to Sharpshooter for Tooki quest.";
+            for (let i = 0; i < 2; i++) {
+                setTimeout(() => {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.volume = 1; utterance.rate = 0.95; utterance.pitch = 1.0;
+                    const voices = window.speechSynthesis.getVoices();
+                    const preferredVoice = voices.find(v => v.name.includes('Google US English') || v.name.includes('Natural') || v.name.includes('Samantha'));
+                    if (preferredVoice) utterance.voice = preferredVoice;
+                    window.speechSynthesis.speak(utterance);
+                }, i * 6500);
+            }
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            audioEnabled = !audioEnabled;
+            if (audioEnabled) {
+                toggleBtn.innerText = "Disable Alarm";
+                toggleBtn.className = "btn-disable";
+                statusIndicator.innerText = "Alarm Active";
+                statusIndicator.className = "status-bar status-active";
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+            } else {
+                toggleBtn.innerText = "Enable Alarm";
+                toggleBtn.className = "btn-enable";
+                statusIndicator.innerText = "Alarm Inactive";
+                statusIndicator.className = "status-bar status-inactive";
+                window.speechSynthesis.cancel();
+            }
+        });
+
+        document.getElementById('testBtn').addEventListener('click', triggerVoiceAlarm);
+
+        function updateTimer() {
+            const now = new Date();
+            const currentMin = now.getMinutes();
+            const currentSec = now.getSeconds();
+            const targetMinutes = 59;
+            let remainingSeconds;
+
+            if (currentMin < targetMinutes) {
+                remainingSeconds = ((targetMinutes - currentMin) * 60) - currentSec;
+            } else if (currentMin === 59 && currentSec === 0) {
+                if (audioEnabled) triggerVoiceAlarm();
+                remainingSeconds = 3600;
+            } else {
+                remainingSeconds = (3600 - ((currentMin * 60) + currentSec)) + (59 * 60);
+            }
+
+            const mins = Math.floor(remainingSeconds / 60);
+            const secs = remainingSeconds % 60;
+            timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>
