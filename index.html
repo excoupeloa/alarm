@@ -140,7 +140,7 @@
         
         <div class="button-group">
             <button id="toggleBtn" class="btn-enable">Enable Alarm</button>
-            <button id="testBtn">🔊 Test AI Voice Tone</button>
+            <button id="testBtn">🔊 Test Alarm Voice Tone</button>
         </div>
     </div>
 
@@ -194,7 +194,7 @@
         });
 
         function triggerVoiceAlarm() {
-            const text = "Achievement Hunter, hourly reminder for you! Switch to Sharpshooter for Tooki quest.";
+            const text = "Achievement Hunter, hourly reminder for you! Switch to your character at Tooki Corporation Island for Tooki quest.";
             for (let i = 0; i < 2; i++) {
                 setTimeout(() => {
                     const utterance = new SpeechSynthesisUtterance(text);
