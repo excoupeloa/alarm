@@ -136,7 +136,7 @@
     <div class="glass-card">
         <div id="statusIndicator" class="status-bar status-inactive">Alarm Inactive</div>
         <div id="timer">--:--</div>
-        <div style="color: var(--text-soft); font-size: 0.8rem; margin-bottom: 1.5rem;">Commander: <strong>Batuhan</strong></div>
+        <div style="color: var(--text-soft); font-size: 0.8rem; margin-bottom: 1.5rem;">Commander: <strong>Achievement Hunter</strong></div>
         
         <div class="button-group">
             <button id="toggleBtn" class="btn-enable">Enable Alarm</button>
@@ -194,7 +194,7 @@
         });
 
         function triggerVoiceAlarm() {
-            const text = "Batuhan, hourly reminder for you! Switch to Sharpshooter for Tooki quest.";
+            const text = "Achievement Hunter, hourly reminder for you! Switch to Sharpshooter for Tooki quest.";
             for (let i = 0; i < 2; i++) {
                 setTimeout(() => {
                     const utterance = new SpeechSynthesisUtterance(text);
